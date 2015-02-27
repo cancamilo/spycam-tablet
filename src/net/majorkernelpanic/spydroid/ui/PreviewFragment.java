@@ -24,7 +24,10 @@ import net.majorkernelpanic.http.TinyHttpServer;
 import net.majorkernelpanic.spydroid.R;
 import net.majorkernelpanic.spydroid.api.CustomHttpServer;
 import net.majorkernelpanic.spydroid.api.CustomRtspServer;
+import net.majorkernelpanic.streaming.Session;
+import net.majorkernelpanic.streaming.Session.Callback;
 import net.majorkernelpanic.streaming.SessionBuilder;
+import net.majorkernelpanic.streaming.audio.AudioQuality;
 import net.majorkernelpanic.streaming.gl.SurfaceView;
 import net.majorkernelpanic.streaming.rtsp.RtspServer;
 import android.content.ComponentName;
@@ -40,7 +43,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class PreviewFragment extends Fragment {
+public class PreviewFragment extends Fragment implements Callback, android.view.SurfaceHolder.Callback {
 
 	public final static String TAG = "PreviewFragment";
 
@@ -48,6 +51,7 @@ public class PreviewFragment extends Fragment {
 	private TextView mTextView;
     private CustomHttpServer mHttpServer;
     private RtspServer mRtspServer;
+    private Session mSession;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -76,8 +80,19 @@ public class PreviewFragment extends Fragment {
 		
 		if (((SpydroidActivity)getActivity()).device == ((SpydroidActivity)getActivity()).TABLET) {
 
-			mSurfaceView = (SurfaceView)rootView.findViewById(R.id.tablet_camera_view);
-			SessionBuilder.getInstance().setSurfaceView(mSurfaceView);
+			mSurfaceView = (SurfaceView)rootView.findViewById(R.id.tablet_camera_view);		
+			
+			// Configures the SessionBuilder
+			mSession = SessionBuilder.getInstance()					
+					.setAudioEncoder(SessionBuilder.AUDIO_AAC)
+					.setAudioQuality(new AudioQuality(8000,16000))
+					.setVideoEncoder(SessionBuilder.VIDEO_H264)
+					.setSurfaceView(mSurfaceView)
+					.setPreviewOrientation(0)
+					.setCallback(this)
+					.build();
+			
+			mSurfaceView.getHolder().addCallback(this);
 
 		} 
 		
@@ -117,5 +132,59 @@ public class PreviewFragment extends Fragment {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {}
 	};
+
+	@Override
+	public void onBitrareUpdate(long bitrate) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSessionError(int reason, int streamType, Exception e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPreviewStarted() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSessionConfigured() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSessionStarted() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSessionStopped() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void surfaceCreated(SurfaceHolder arg0) {
+		mSession.startPreview();
+		
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
